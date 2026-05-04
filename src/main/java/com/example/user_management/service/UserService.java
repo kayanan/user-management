@@ -1,10 +1,13 @@
 package com.example.user_management.service;
 
+import com.example.user_management.exceptions.UserNotFoundException;
 import com.example.user_management.model.User;
 import com.example.user_management.model.dto.UpdateUserRequest;
+import com.example.user_management.model.dto.UserRegisterRequest;
 import com.example.user_management.model.dto.UserResponse;
 import com.example.user_management.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +21,16 @@ public class UserService {
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public User saveUser(User user) {
-        user.setPassword(encoder.encode(user.getPassword()));
-        return userRepo.save(user) ;
+    public UserResponse saveUser(UserRegisterRequest userRegisterRequest) {
+        User user = User.builder()
+                .username(userRegisterRequest.username())
+                .email(userRegisterRequest.email())
+                .password(encoder.encode(userRegisterRequest.password()))
+                .isDeleted(false)
+                .isActive(true)
+                .build();
+
+        return mapToResponse(userRepo.save(user));
 
     }
 
@@ -38,10 +48,10 @@ public class UserService {
 
     public UserResponse updateUser(Integer id, UpdateUserRequest request) {
         User user = findUserById(id);
-        if(request.username() != null){
+        if (request.username() != null) {
             user.setUsername(request.username());
         }
-        if(request.email() != null){
+        if (request.email() != null) {
             user.setEmail(request.email());
         }
         User updatedUser = userRepo.save(user);
@@ -62,16 +72,21 @@ public class UserService {
         return mapToResponse(updatedUser);
     }
 
-    public UserResponse deleteUser(Integer id) {
+    public UserResponse softDeleteUser(Integer id) {
         User user = findUserById(id);
         user.setDeleted(true);
         User deletedUser = userRepo.save(user);
         return mapToResponse(deletedUser);
     }
 
+    public Void hardDeleteUser(Integer id) {
+        userRepo.deleteById(id);
+        return null;
+    }
+
     private User findUserById(Integer id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
 
     private UserResponse mapToResponse(User user) {

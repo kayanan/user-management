@@ -18,6 +18,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
+
         UserResponse user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
@@ -47,10 +48,17 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        userService.deleteUser(id);
+    public ResponseEntity<UserResponse> softDeleteUser(@PathVariable Integer id) {
+        UserResponse userResponse= userService.softDeleteUser(id);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<Void> hardDeleteUser(@PathVariable Integer id) {
+        userService.hardDeleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
 
 
 }
