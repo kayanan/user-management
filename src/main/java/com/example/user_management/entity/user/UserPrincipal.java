@@ -1,4 +1,4 @@
-package com.example.user_management.model;
+package com.example.user_management.entity.user;
 
 import lombok.NonNull;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,10 +1,9 @@
 package com.example.user_management.controller;
 
-import com.example.user_management.model.User;
-import com.example.user_management.model.dto.LoginRequest;
-import com.example.user_management.model.dto.UserRegisterRequest;
-import com.example.user_management.model.dto.UserResponse;
-import com.example.user_management.service.UserService;
+import com.example.user_management.dto.LoginRequest;
+import com.example.user_management.dto.UserRegisterRequest;
+import com.example.user_management.dto.UserResponse;
+import com.example.user_management.service.user.UserService;
 import com.example.user_management.service.auth.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

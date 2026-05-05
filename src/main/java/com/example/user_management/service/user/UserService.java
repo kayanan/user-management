@@ -1,24 +1,22 @@
-package com.example.user_management.service;
+package com.example.user_management.service.user;
 
 import com.example.user_management.exceptions.UserNotFoundException;
-import com.example.user_management.model.User;
-import com.example.user_management.model.dto.UpdateUserRequest;
-import com.example.user_management.model.dto.UserRegisterRequest;
-import com.example.user_management.model.dto.UserResponse;
+import com.example.user_management.entity.user.User;
+import com.example.user_management.dto.UpdateUserRequest;
+import com.example.user_management.dto.UserRegisterRequest;
+import com.example.user_management.dto.UserResponse;
 import com.example.user_management.repo.UserRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepo userRepo;
-
+    private final UserRepo userRepo;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public UserResponse saveUser(UserRegisterRequest userRegisterRequest) {
@@ -26,8 +24,6 @@ public class UserService {
                 .username(userRegisterRequest.username())
                 .email(userRegisterRequest.email())
                 .password(encoder.encode(userRegisterRequest.password()))
-                .isDeleted(false)
-                .isActive(true)
                 .build();
 
         return mapToResponse(userRepo.save(user));
@@ -42,6 +38,7 @@ public class UserService {
     public List<UserResponse> getAllUsers() {
         return userRepo.findAll()
                 .stream()
+                .filter((user -> !user.isDeleted()))
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -75,12 +72,14 @@ public class UserService {
     public UserResponse softDeleteUser(Integer id) {
         User user = findUserById(id);
         user.setDeleted(true);
+        user.setActive(false);
         User deletedUser = userRepo.save(user);
         return mapToResponse(deletedUser);
     }
 
     public Void hardDeleteUser(Integer id) {
-        userRepo.deleteById(id);
+        User user = findUserById(id);
+        userRepo.delete(user);
         return null;
     }
 

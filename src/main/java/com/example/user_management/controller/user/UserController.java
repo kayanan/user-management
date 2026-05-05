@@ -1,8 +1,8 @@
-package com.example.user_management.controller;
+package com.example.user_management.controller.user;
 
-import com.example.user_management.model.dto.UpdateUserRequest;
-import com.example.user_management.model.dto.UserResponse;
-import com.example.user_management.service.UserService;
+import com.example.user_management.dto.UpdateUserRequest;
+import com.example.user_management.dto.UserResponse;
+import com.example.user_management.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
