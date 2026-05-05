@@ -1,14 +1,14 @@
 package com.example.user_management.controller.user;
 
-import com.example.user_management.dto.AssignRoleRequest;
-import com.example.user_management.dto.UserRoleResponse;
+import com.example.user_management.dto.request.AssignRoleRequest;
+import com.example.user_management.dto.response.UserRoleResponse;
 import com.example.user_management.service.user.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("api/v1/users")
 @RequiredArgsConstructor
 public class UserRoleController {
 

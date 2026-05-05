@@ -1,12 +1,13 @@
 package com.example.user_management.controller;
 
-import com.example.user_management.dto.LoginRequest;
-import com.example.user_management.dto.UserRegisterRequest;
-import com.example.user_management.dto.UserResponse;
+import com.example.user_management.dto.request.LoginRequest;
+import com.example.user_management.dto.request.UserRegisterRequest;
+import com.example.user_management.dto.response.UserResponse;
 import com.example.user_management.service.user.UserService;
 import com.example.user_management.service.auth.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,24 +29,18 @@ public class UserAuthController {
     AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
-    public UserResponse register(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public UserResponse register(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
         return userService.saveUser(userRegisterRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
-            String token = jwtService.generateToken(loginRequest.username());
-            Cookie cookie = new Cookie("TOKEN", token);
-            cookie.setPath("/");
-            cookie.setMaxAge(60 * 60);
-            cookie.setHttpOnly(false);
-            cookie.setSecure(false);
-            response.addCookie(cookie);
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
+            String token = jwtService.generateToken(loginRequest.email());
             return ResponseEntity.ok(token);
         } catch (Exception e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
 
     }

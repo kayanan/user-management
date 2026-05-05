@@ -1,8 +1,9 @@
 package com.example.user_management.controller.user;
 
-import com.example.user_management.dto.UpdateUserRequest;
-import com.example.user_management.dto.UserResponse;
+import com.example.user_management.dto.request.UpdateUserRequest;
+import com.example.user_management.dto.response.UserResponse;
 import com.example.user_management.service.user.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @Valid @RequestBody UpdateUserRequest request) {
         UserResponse updatedUser = userService.updateUser(id, request);
         return ResponseEntity.ok(updatedUser);
     }

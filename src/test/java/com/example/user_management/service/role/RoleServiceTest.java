@@ -2,9 +2,9 @@ package com.example.user_management.service.role;
 
 import com.example.user_management.exceptions.RoleAlreadyExistsException;
 import com.example.user_management.exceptions.RoleNotFoundException;
-import com.example.user_management.dto.AssignPermissionRequest;
-import com.example.user_management.dto.CreateRoleRequest;
-import com.example.user_management.dto.RoleResponse;
+import com.example.user_management.dto.request.AssignOrRemovePermissionRequest;
+import com.example.user_management.dto.request.CreateRoleRequest;
+import com.example.user_management.dto.response.RoleResponse;
 import com.example.user_management.entity.Permission;
 import com.example.user_management.entity.Role;
 import com.example.user_management.repo.PermissionRepo;
@@ -165,7 +165,7 @@ class RoleServiceTest {
     void shouldAssignPermissionsToRoleSuccessfully() {
         Integer roleId = 1;
 
-        AssignPermissionRequest request = new AssignPermissionRequest(Set.of(1, 2));
+        AssignOrRemovePermissionRequest request = new AssignOrRemovePermissionRequest(Set.of(1, 2));
 
         when(roleRepo.findById(roleId)).thenReturn(Optional.of(role));
         when(permissionRepo.findAllById(request.permissionIds()))
@@ -196,7 +196,7 @@ class RoleServiceTest {
     void shouldThrowExceptionWhenAssigningPermissionsAndSomePermissionsNotFound() {
         Integer roleId = 1;
 
-        AssignPermissionRequest request = new AssignPermissionRequest(Set.of(1, 2));
+        AssignOrRemovePermissionRequest request = new AssignOrRemovePermissionRequest(Set.of(1, 2));
 
         when(roleRepo.findById(roleId)).thenReturn(Optional.of(role));
         when(permissionRepo.findAllById(request.permissionIds()))
@@ -220,7 +220,7 @@ class RoleServiceTest {
 
         role.setPermissions(new HashSet<>(Set.of(permission1)));
 
-        AssignPermissionRequest request = new AssignPermissionRequest(Set.of(2));
+        AssignOrRemovePermissionRequest request = new AssignOrRemovePermissionRequest(Set.of(2));
 
         when(roleRepo.findById(roleId)).thenReturn(Optional.of(role));
         when(permissionRepo.findAllById(request.permissionIds()))
@@ -254,7 +254,7 @@ class RoleServiceTest {
         when(roleRepo.findById(roleId)).thenReturn(Optional.of(role));
         doNothing().when(roleRepo).delete(role);
 
-        roleService.deleteRole(roleId);
+        roleService.hardDeleteRole(roleId);
 
         verify(roleRepo, times(1)).findById(roleId);
         verify(roleRepo, times(1)).delete(role);
@@ -268,7 +268,7 @@ class RoleServiceTest {
 
         RoleNotFoundException exception = assertThrows(
                 RoleNotFoundException.class,
-                () -> roleService.deleteRole(roleId)
+                () -> roleService.hardDeleteRole(roleId)
         );
 
         assertEquals("Role not found with id: 99", exception.getMessage());

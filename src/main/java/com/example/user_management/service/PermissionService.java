@@ -2,8 +2,8 @@ package com.example.user_management.service;
 
 import com.example.user_management.exceptions.PermissionAlreadyExistsException;
 import com.example.user_management.exceptions.PermissionNotFoundException;
-import com.example.user_management.dto.CreatePermissionRequest;
-import com.example.user_management.dto.PermissionResponse;
+import com.example.user_management.dto.request.CreatePermissionRequest;
+import com.example.user_management.dto.response.PermissionResponse;
 import com.example.user_management.entity.Permission;
 import com.example.user_management.repo.PermissionRepo;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +34,7 @@ public class PermissionService {
     public List<PermissionResponse> getAllPermissions() {
         return permissionRepo.findAll()
                 .stream()
+                .filter(permission -> !permission.isDeleted())
                 .map(this::mapToPermissionResponse)
                 .toList();
     }
@@ -43,7 +44,14 @@ public class PermissionService {
         return mapToPermissionResponse(permission);
     }
 
-    public void deletePermission(Integer permissionId) {
+    public PermissionResponse softDeletePermission(Integer permissionId) {
+        Permission permission = findPermissionById(permissionId);
+        permission.setDeleted(true);
+        permission.setActive(false);
+        return mapToPermissionResponse(permissionRepo.save(permission));
+    }
+
+    public void hardDeletePermission(Integer permissionId) {
         Permission permission = findPermissionById(permissionId);
         permissionRepo.delete(permission);
     }
@@ -57,7 +65,10 @@ public class PermissionService {
         return new PermissionResponse(
                 permission.getId(),
                 permission.getName(),
-                permission.getDescription()
+                permission.getDescription(),
+                permission.isActive(),
+                permission.isDeleted()
+
         );
     }
 }

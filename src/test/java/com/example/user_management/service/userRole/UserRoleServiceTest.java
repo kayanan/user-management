@@ -1,7 +1,7 @@
 package com.example.user_management.service.userRole;
 
-import com.example.user_management.dto.AssignRoleRequest;
-import com.example.user_management.dto.UserRoleResponse;
+import com.example.user_management.dto.request.AssignRoleRequest;
+import com.example.user_management.dto.response.UserRoleResponse;
 import com.example.user_management.entity.Role;
 import com.example.user_management.entity.user.User;
 import com.example.user_management.repo.RoleRepo;

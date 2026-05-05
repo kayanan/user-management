@@ -1,7 +1,7 @@
 package com.example.user_management.controller;
 
-import com.example.user_management.dto.CreatePermissionRequest;
-import com.example.user_management.dto.PermissionResponse;
+import com.example.user_management.dto.request.CreatePermissionRequest;
+import com.example.user_management.dto.response.PermissionResponse;
 import com.example.user_management.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/permissions")
+@RequestMapping("api/v1/permissions")
 @RequiredArgsConstructor
 public class PermissionController {
 
@@ -36,10 +36,15 @@ public class PermissionController {
     }
 
     @DeleteMapping("/{permissionId}")
-    public ResponseEntity<Void> deletePermission(
+    public ResponseEntity<PermissionResponse> softDeletePermission(
             @PathVariable Integer permissionId
     ) {
-        permissionService.deletePermission(permissionId);
+        return ResponseEntity.ok(permissionService.softDeletePermission(permissionId));
+    }
+
+    @DeleteMapping("/{permissionId}/hard")
+    public ResponseEntity<Void> hardDeleteUser(@PathVariable Integer permissionId) {
+        permissionService.hardDeletePermission(permissionId);
         return ResponseEntity.noContent().build();
     }
 }

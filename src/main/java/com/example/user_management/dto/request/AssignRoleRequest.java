@@ -1,4 +1,4 @@
-package com.example.user_management.dto;
+package com.example.user_management.dto.request;
 
 import java.util.Set;
 

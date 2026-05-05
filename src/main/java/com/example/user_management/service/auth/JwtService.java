@@ -22,12 +22,12 @@ public class JwtService {
         this.secret = secret;
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(username)
+                .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
                 .signWith(getKey())

@@ -24,6 +24,8 @@ public class User extends Auditable {
 
     private String username;
     private String password;
+
+    @Column(unique = true)
     private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)

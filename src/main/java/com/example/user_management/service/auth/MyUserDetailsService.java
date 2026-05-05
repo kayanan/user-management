@@ -17,11 +17,12 @@ public class MyUserDetailsService implements UserDetailsService {
         this.repo = repo;
     }
 
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = repo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        return new UserPrincipal(user);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = repo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        UserDetails user1 = new UserPrincipal(user);
+        System.out.println(user1);
+        return  user1;
     }
 
 }

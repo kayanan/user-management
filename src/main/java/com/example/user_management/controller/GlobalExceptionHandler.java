@@ -1,14 +1,17 @@
 package com.example.user_management.controller;
 
 import com.example.user_management.exceptions.*;
-import com.example.user_management.dto.ErrorResponse;
+import com.example.user_management.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -54,6 +57,19 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(409, exception.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), error.getDefaultMessage());
+        });
+        ErrorResponse errorResponse = new ErrorResponse(400, errors.toString() , LocalDateTime.now());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handelUnCaughtException(Exception exception) {

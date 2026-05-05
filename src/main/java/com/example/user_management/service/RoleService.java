@@ -1,19 +1,21 @@
 package com.example.user_management.service;
 
+import com.example.user_management.dto.request.AssignOrRemovePermissionRequest;
 import com.example.user_management.exceptions.RoleAlreadyExistsException;
 import com.example.user_management.exceptions.RoleNotFoundException;
-import com.example.user_management.dto.AssignPermissionRequest;
-import com.example.user_management.dto.CreateRoleRequest;
-import com.example.user_management.dto.RoleResponse;
+import com.example.user_management.dto.request.CreateRoleRequest;
+import com.example.user_management.dto.response.RoleResponse;
 import com.example.user_management.entity.Permission;
 import com.example.user_management.entity.Role;
 import com.example.user_management.repo.PermissionRepo;
 import com.example.user_management.repo.RoleRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class RoleService {
     public List<RoleResponse> getAllRoles() {
         return roleRepo.findAll()
                 .stream()
+                .filter(role -> !role.isDeleted())
                 .map(this::mapToRoleResponse)
                 .toList();
     }
@@ -51,7 +54,7 @@ public class RoleService {
 
     public RoleResponse assignPermissionsToRole(
             Integer roleId,
-            AssignPermissionRequest request
+            AssignOrRemovePermissionRequest request
     ) {
         Role role = findRoleById(roleId);
 
@@ -72,7 +75,7 @@ public class RoleService {
 
     public RoleResponse addPermissionsToRole(
             Integer roleId,
-            AssignPermissionRequest request
+            AssignOrRemovePermissionRequest request
     ) {
         Role role = findRoleById(roleId);
 
@@ -91,7 +94,38 @@ public class RoleService {
         return mapToRoleResponse(savedRole);
     }
 
-    public void deleteRole(Integer roleId) {
+    public RoleResponse removePermissionsFromRole(
+            Integer roleId,
+            AssignOrRemovePermissionRequest request
+    ) {
+        Role role = findRoleById(roleId);
+
+        Set<Permission> permissions = new HashSet<>(
+                permissionRepo.findAllById(request.permissionIds())
+        );
+
+        if (permissions.size() != request.permissionIds().size()) {
+            throw new RuntimeException("One or more permissions not found");
+        }
+
+        Set<Permission> filteredPermissions = role.getPermissions()
+                .stream()
+                .filter(permission -> !request.permissionIds().contains(permission.getId()))
+                .collect(Collectors.toSet());
+        role.setPermissions(filteredPermissions);
+        Role savedRole = roleRepo.save(role);
+
+        return mapToRoleResponse(savedRole);
+    }
+
+    public RoleResponse softDeleteRole(Integer roleId) {
+        Role role = findRoleById(roleId);
+        role.setDeleted(true);
+        role.setActive(false);
+        return mapToRoleResponse(roleRepo.save(role));
+    }
+
+    public void hardDeleteRole(Integer roleId) {
         Role role = findRoleById(roleId);
         roleRepo.delete(role);
     }
@@ -111,7 +145,9 @@ public class RoleService {
                 role.getId(),
                 role.getName(),
                 role.getDescription(),
-                permissions
+                permissions,
+                role.isActive(),
+                role.isDeleted()
         );
     }
 }
