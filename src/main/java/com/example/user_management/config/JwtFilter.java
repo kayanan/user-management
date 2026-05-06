@@ -1,7 +1,7 @@
 package com.example.user_management.config;
 
 import com.example.user_management.service.auth.JwtService;
-import com.example.user_management.service.auth.MyUserDetailsService;
+import com.example.user_management.service.impl.MyUserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(userName);
+                UserDetails userDetails = context.getBean(MyUserDetailsServiceImpl.class).loadUserByUsername(userName);
                 System.out.println(userDetails);
                 if (jwtService.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

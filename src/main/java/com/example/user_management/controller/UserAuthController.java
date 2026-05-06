@@ -3,11 +3,10 @@ package com.example.user_management.controller;
 import com.example.user_management.dto.request.LoginRequest;
 import com.example.user_management.dto.request.UserRegisterRequest;
 import com.example.user_management.dto.response.UserResponse;
-import com.example.user_management.service.user.UserService;
 import com.example.user_management.service.auth.JwtService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.user_management.service.user.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,15 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 public class UserAuthController {
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
     public UserResponse register(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {

@@ -7,6 +7,7 @@ import com.example.user_management.dto.response.PermissionResponse;
 import com.example.user_management.entity.Permission;
 import com.example.user_management.repo.PermissionRepo;
 import com.example.user_management.service.PermissionService;
+import com.example.user_management.service.impl.PermissionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ class PermissionServiceTest {
 
     @BeforeEach
     void setUp() {
-        permissionService = new PermissionService(permissionRepo);
+        permissionService = new PermissionServiceImpl(permissionRepo);
 
         permission = new Permission();
         permission.setId(1);
@@ -141,7 +142,7 @@ class PermissionServiceTest {
         when(permissionRepo.findById(permissionId)).thenReturn(Optional.of(permission));
         doNothing().when(permissionRepo).delete(permission);
 
-        permissionService.deletePermission(permissionId);
+        permissionService.hardDeletePermission(permissionId);
 
         verify(permissionRepo, times(1)).findById(permissionId);
         verify(permissionRepo, times(1)).delete(permission);
@@ -155,7 +156,7 @@ class PermissionServiceTest {
 
         PermissionNotFoundException exception = assertThrows(
                 PermissionNotFoundException.class,
-                () -> permissionService.deletePermission(permissionId)
+                () -> permissionService.hardDeletePermission(permissionId)
         );
 
         assertEquals("Permission not found with id: 99", exception.getMessage());

@@ -1,4 +1,4 @@
-package com.example.user_management.service.auth;
+package com.example.user_management.service.impl;
 
 import com.example.user_management.entity.user.User;
 import com.example.user_management.entity.user.UserPrincipal;
@@ -9,11 +9,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MyUserDetailsService implements UserDetailsService {
+public class MyUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepo repo;
 
-    public MyUserDetailsService(UserRepo repo) {
+    public MyUserDetailsServiceImpl(UserRepo repo) {
         this.repo = repo;
     }
 

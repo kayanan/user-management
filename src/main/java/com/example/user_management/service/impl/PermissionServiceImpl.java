@@ -1,0 +1,81 @@
+package com.example.user_management.service.impl;
+
+import com.example.user_management.exceptions.PermissionAlreadyExistsException;
+import com.example.user_management.dto.request.CreatePermissionRequest;
+import com.example.user_management.dto.response.PermissionResponse;
+import com.example.user_management.entity.Permission;
+import com.example.user_management.exceptions.PermissionNotFoundException;
+import com.example.user_management.repo.PermissionRepo;
+import com.example.user_management.service.PermissionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class PermissionServiceImpl implements PermissionService {
+
+    private final PermissionRepo permissionRepo;
+
+    @Override
+    public PermissionResponse createPermission(CreatePermissionRequest request) {
+        if (permissionRepo.existsByName(request.name())) {
+            throw new PermissionAlreadyExistsException("Permission already exists: " + request.name());
+        }
+
+        Permission permission = new Permission();
+        permission.setName(request.name());
+        permission.setDescription(request.description());
+
+        Permission savedPermission = permissionRepo.save(permission);
+
+        return mapToPermissionResponse(savedPermission);
+    }
+
+    @Override
+    public List<PermissionResponse> getAllPermissions() {
+        return permissionRepo.findAll()
+                .stream()
+                .filter(permission -> !permission.isDeleted())
+                .map(this::mapToPermissionResponse)
+                .toList();
+    }
+
+    @Override
+    public PermissionResponse getPermissionById(Integer permissionId) {
+        Permission permission = findPermissionById(permissionId);
+        return mapToPermissionResponse(permission);
+    }
+
+    @Override
+    public PermissionResponse softDeletePermission(Integer permissionId) {
+        Permission permission = findPermissionById(permissionId);
+        permission.setDeleted(true);
+        permission.setActive(false);
+        return mapToPermissionResponse(permissionRepo.save(permission));
+    }
+
+    @Override
+    public void hardDeletePermission(Integer permissionId) {
+        Permission permission = findPermissionById(permissionId);
+        permissionRepo.delete(permission);
+    }
+
+    private Permission findPermissionById(Integer id) {
+        return permissionRepo.findById(id)
+                .orElseThrow(() -> new PermissionNotFoundException("Permission not found with id: " + id));
+    }
+
+    private PermissionResponse mapToPermissionResponse(Permission permission) {
+        return new PermissionResponse(
+                permission.getId(),
+                permission.getName(),
+                permission.getDescription(),
+                permission.isActive(),
+                permission.isDeleted()
+
+        );
+    }
+
+}

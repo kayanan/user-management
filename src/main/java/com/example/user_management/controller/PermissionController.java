@@ -3,6 +3,7 @@ package com.example.user_management.controller;
 import com.example.user_management.dto.request.CreatePermissionRequest;
 import com.example.user_management.dto.response.PermissionResponse;
 import com.example.user_management.service.PermissionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class PermissionController {
 
     @PostMapping
     public ResponseEntity<PermissionResponse> createPermission(
-            @RequestBody CreatePermissionRequest request
+            @Valid @RequestBody CreatePermissionRequest request
     ) {
         return ResponseEntity.ok(permissionService.createPermission(request));
     }

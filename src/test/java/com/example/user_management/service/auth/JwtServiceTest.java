@@ -1,5 +1,6 @@
 package com.example.user_management.service.auth;
 
+import com.example.user_management.service.impl.JwtServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.User;
@@ -17,7 +18,7 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService(secret);
+        jwtService = new JwtServiceImpl(secret);
     }
 
     @Test

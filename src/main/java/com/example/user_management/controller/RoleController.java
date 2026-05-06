@@ -4,6 +4,7 @@ import com.example.user_management.dto.request.AssignOrRemovePermissionRequest;
 import com.example.user_management.dto.request.CreateRoleRequest;
 import com.example.user_management.dto.response.RoleResponse;
 import com.example.user_management.service.RoleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class RoleController {
 
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(
-            @RequestBody CreateRoleRequest request
+            @Valid @RequestBody CreateRoleRequest request
     ) {
         return ResponseEntity.ok(roleService.createRole(request));
     }
@@ -39,7 +40,7 @@ public class RoleController {
     @PutMapping("/{roleId}/permissions")
     public ResponseEntity<RoleResponse> assignPermissionsToRole(
             @PathVariable Integer roleId,
-            @RequestBody AssignOrRemovePermissionRequest request
+            @Valid @RequestBody AssignOrRemovePermissionRequest request
     ) {
         return ResponseEntity.ok(roleService.assignPermissionsToRole(roleId, request));
     }
@@ -47,7 +48,7 @@ public class RoleController {
     @PatchMapping("/{roleId}/permissions/add")
     public ResponseEntity<RoleResponse> addPermissionsToRole(
             @PathVariable Integer roleId,
-            @RequestBody AssignOrRemovePermissionRequest request
+            @Valid @RequestBody AssignOrRemovePermissionRequest request
     ) {
         return ResponseEntity.ok(roleService.addPermissionsToRole(roleId, request));
     }
@@ -55,7 +56,7 @@ public class RoleController {
     @PatchMapping("/{roleId}/permissions/remove")
     public ResponseEntity<RoleResponse> removePermissionsToRole(
             @PathVariable Integer roleId,
-            @RequestBody AssignOrRemovePermissionRequest request
+            @Valid @RequestBody AssignOrRemovePermissionRequest request
     ) {
         return ResponseEntity.ok(roleService.removePermissionsFromRole(roleId, request));
     }

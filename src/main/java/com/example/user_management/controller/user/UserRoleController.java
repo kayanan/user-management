@@ -3,6 +3,7 @@ package com.example.user_management.controller.user;
 import com.example.user_management.dto.request.AssignRoleRequest;
 import com.example.user_management.dto.response.UserRoleResponse;
 import com.example.user_management.service.user.UserRoleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class UserRoleController {
     @PutMapping("/{userId}/roles")
     public ResponseEntity<UserRoleResponse> assignRolesToUser(
             @PathVariable Integer userId,
-            @RequestBody AssignRoleRequest request
+            @Valid @RequestBody AssignRoleRequest request
     ) {
         return ResponseEntity.ok(userRoleService.assignRolesToUser(userId, request));
     }
@@ -32,7 +33,7 @@ public class UserRoleController {
     @PatchMapping("/{userId}/roles")
     public ResponseEntity<UserRoleResponse> addRolesToUser(
             @PathVariable Integer userId,
-            @RequestBody AssignRoleRequest request
+            @Valid @RequestBody AssignRoleRequest request
     ) {
         return ResponseEntity.ok(userRoleService.addRolesToUser(userId, request));
     }

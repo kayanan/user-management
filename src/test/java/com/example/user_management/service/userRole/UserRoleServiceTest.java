@@ -7,6 +7,7 @@ import com.example.user_management.entity.user.User;
 import com.example.user_management.repo.RoleRepo;
 import com.example.user_management.repo.UserRepo;
 import com.example.user_management.service.user.UserRoleService;
+import com.example.user_management.service.impl.UserRoleServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,7 @@ class UserRoleServiceTest {
 
     @BeforeEach
     void setUp() {
-        userRoleService = new UserRoleService(userRepo, roleRepo);
+        userRoleService = new UserRoleServiceImpl(userRepo, roleRepo);
 
         adminRole = new Role();
         adminRole.setId(1);
