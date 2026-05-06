@@ -3,6 +3,8 @@ package com.example.user_management.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,12 +28,7 @@ public class Role extends Auditable {
     private String name;
 
     private String description;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
-    )
-    private Set<Permission> permissions = new HashSet<>();
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "permission_ids", columnDefinition = "integer[]")
+    private Integer[] permissionIds;
 }

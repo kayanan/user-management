@@ -1,11 +1,7 @@
 package com.example.user_management.service.permission;
 
-import com.example.user_management.exceptions.PermissionAlreadyExistsException;
 import com.example.user_management.exceptions.PermissionNotFoundException;
-import com.example.user_management.dto.request.CreatePermissionRequest;
 import com.example.user_management.dto.response.PermissionResponse;
-import com.example.user_management.entity.Permission;
-import com.example.user_management.repo.PermissionRepo;
 import com.example.user_management.service.PermissionService;
 import com.example.user_management.service.impl.PermissionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;

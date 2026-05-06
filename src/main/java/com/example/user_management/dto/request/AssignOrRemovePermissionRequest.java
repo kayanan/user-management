@@ -8,6 +8,6 @@ import java.util.Set;
 public record AssignOrRemovePermissionRequest(
         @NotNull(message = "Permission IDs cannot be null")
         @NotEmpty(message = "Permission IDs cannot be empty")
-        Set<@NotNull(message = "Permission ID cannot be null") Integer> permissionIds
+        Set<@NotNull(message = "Permission ID cannot be null") Integer > permissionIds
 ) {
 }

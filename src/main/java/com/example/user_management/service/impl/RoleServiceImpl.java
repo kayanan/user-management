@@ -1,18 +1,19 @@
 package com.example.user_management.service.impl;
 
 import com.example.user_management.dto.request.AssignOrRemovePermissionRequest;
+import com.example.user_management.dto.response.PermissionResponse;
 import com.example.user_management.exceptions.RoleAlreadyExistsException;
 import com.example.user_management.dto.request.CreateRoleRequest;
 import com.example.user_management.dto.response.RoleResponse;
-import com.example.user_management.entity.Permission;
 import com.example.user_management.entity.Role;
 import com.example.user_management.exceptions.RoleNotFoundException;
-import com.example.user_management.repo.PermissionRepo;
 import com.example.user_management.repo.RoleRepo;
+import com.example.user_management.service.PermissionService;
 import com.example.user_management.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,29 +21,30 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepo roleRepo;
-    private final PermissionRepo permissionRepo;
+    private final PermissionService permissionService;
 
     @Override
     public RoleResponse createRole(CreateRoleRequest request) {
         if (roleRepo.existsByName(request.name())) {
             throw new RoleAlreadyExistsException("Role already exists: " + request.name());
         }
-
         Role role = new Role();
         role.setName(request.name());
         role.setDescription(request.description());
-
         Role savedRole = roleRepo.save(role);
-
         return mapToRoleResponse(savedRole);
     }
 
     @Override
     public List<RoleResponse> getAllRoles() {
+        System.out.println(roleRepo.findAll()
+                .stream()
+                .filter(role -> !role.isDeleted())
+                .map(this::mapToRoleResponse)
+                .toList());
         return roleRepo.findAll()
                 .stream()
                 .filter(role -> !role.isDeleted())
@@ -62,19 +64,9 @@ public class RoleServiceImpl implements RoleService {
             AssignOrRemovePermissionRequest request
     ) {
         Role role = findRoleById(roleId);
-
-        Set<Permission> permissions = new HashSet<>(
-                permissionRepo.findAllById(request.permissionIds())
-        );
-
-        if (permissions.size() != request.permissionIds().size()) {
-            throw new RuntimeException("One or more permissions not found");
-        }
-
-        role.setPermissions(permissions);
-
+        validatePermissionIds(request);
+        role.setPermissionIds(request.permissionIds().toArray(new Integer[0]));
         Role savedRole = roleRepo.save(role);
-
         return mapToRoleResponse(savedRole);
     }
 
@@ -84,19 +76,11 @@ public class RoleServiceImpl implements RoleService {
             AssignOrRemovePermissionRequest request
     ) {
         Role role = findRoleById(roleId);
-
-        Set<Permission> permissions = new HashSet<>(
-                permissionRepo.findAllById(request.permissionIds())
-        );
-
-        if (permissions.size() != request.permissionIds().size()) {
-            throw new RuntimeException("One or more permissions not found");
-        }
-
-        role.getPermissions().addAll(permissions);
-
+        validatePermissionIds(request);
+        Set<Integer> permissionIds = new HashSet<>(Arrays.asList(role.getPermissionIds()));
+        permissionIds.addAll(request.permissionIds());
+        role.setPermissionIds(permissionIds.toArray(new Integer[0]));
         Role savedRole = roleRepo.save(role);
-
         return mapToRoleResponse(savedRole);
     }
 
@@ -106,22 +90,11 @@ public class RoleServiceImpl implements RoleService {
             AssignOrRemovePermissionRequest request
     ) {
         Role role = findRoleById(roleId);
-
-        Set<Permission> permissions = new HashSet<>(
-                permissionRepo.findAllById(request.permissionIds())
-        );
-
-        if (permissions.size() != request.permissionIds().size()) {
-            throw new RuntimeException("One or more permissions not found");
-        }
-
-        Set<Permission> filteredPermissions = role.getPermissions()
-                .stream()
-                .filter(permission -> !request.permissionIds().contains(permission.getId()))
-                .collect(Collectors.toSet());
-        role.setPermissions(filteredPermissions);
+        validatePermissionIds(request);
+        Set<Integer> permissionIds = new HashSet<>(Arrays.asList(role.getPermissionIds()));
+        permissionIds.removeAll(request.permissionIds());
+        role.setPermissionIds(permissionIds.toArray(new Integer[0]));
         Role savedRole = roleRepo.save(role);
-
         return mapToRoleResponse(savedRole);
     }
 
@@ -144,12 +117,21 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new RoleNotFoundException("Role not found with id: " + roleId));
     }
 
-    private RoleResponse mapToRoleResponse(Role role) {
-        Set<String> permissions = role.getPermissions()
-                .stream()
-                .map(Permission::getName)
-                .collect(java.util.stream.Collectors.toSet());
+    private Void validatePermissionIds(AssignOrRemovePermissionRequest request) {
+        List<Integer> permissions = permissionService.getAllPermissions().stream()
+                .filter(permissionResponse -> request.permissionIds().contains(permissionResponse.id()))
+                .map(permissionResponse -> permissionResponse.id())
+                .toList();
+        if (permissions.size() != request.permissionIds().size()) {
+            throw new RuntimeException("One or more permissions not found");
+        }
+        return null;
+    }
 
+    private RoleResponse mapToRoleResponse(Role role) {
+        Set<PermissionResponse> permissions = permissionService.getAllPermissions().stream()
+                .filter(permissionResponse -> role.getPermissionIds() != null && Arrays.asList(role.getPermissionIds()).contains(permissionResponse.id()))
+                .collect(Collectors.toSet());
         return new RoleResponse(
                 role.getId(),
                 role.getName(),

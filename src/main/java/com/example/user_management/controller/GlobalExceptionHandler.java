@@ -52,12 +52,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PermissionAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handelPermissionAlreadyExistsException(PermissionAlreadyExistsException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(409, exception.getMessage(), LocalDateTime.now());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
 
@@ -69,7 +63,6 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(400, errors.toString() , LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handelUnCaughtException(Exception exception) {

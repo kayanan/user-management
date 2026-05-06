@@ -1,11 +1,14 @@
-package com.example.user_management.controller.user;
+package com.example.user_management.controller;
 
+import com.example.user_management.dto.request.AssignOrRemoveRoleRequest;
 import com.example.user_management.dto.request.UpdateUserRequest;
+import com.example.user_management.dto.response.ApiResponse;
 import com.example.user_management.dto.response.UserResponse;
-import com.example.user_management.service.user.UserService;
+import com.example.user_management.service.UserService;
+import com.example.user_management.utils.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +22,10 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Integer id) {
 
         UserResponse user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        return ResponseUtil.success(HttpStatus.CREATED,"User fetched successfully",user);
     }
 
     @GetMapping
@@ -47,6 +50,24 @@ public class UserController {
     public ResponseEntity<UserResponse> activateUser(@PathVariable Integer id) {
         UserResponse user = userService.activateUser(id);
         return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/{userId}/roles/assign")
+    public ResponseEntity<ApiResponse<Void>> assignRoles(
+            @PathVariable Integer userId,
+            @RequestBody AssignOrRemoveRoleRequest request) {
+
+        userService.assignRoleToUser(userId, request.roleId());
+        return ResponseUtil.success("Roles assigned successfully", null);
+    }
+
+    @PutMapping("/{userId}/roles/remove")
+    public ResponseEntity<ApiResponse<Void>> removeRoles(
+            @PathVariable Integer userId,
+            @RequestBody AssignOrRemoveRoleRequest request) {
+
+        userService.removeRoleFromUser(userId, request.roleId());
+        return ResponseUtil.success("Roles removed successfully", null);
     }
 
     @DeleteMapping("/{id}")

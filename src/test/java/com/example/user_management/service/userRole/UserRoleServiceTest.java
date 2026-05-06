@@ -1,13 +1,10 @@
 package com.example.user_management.service.userRole;
 
-import com.example.user_management.dto.request.AssignRoleRequest;
-import com.example.user_management.dto.response.UserRoleResponse;
+import com.example.user_management.dto.request.AssignOrRemoveRoleRequest;
 import com.example.user_management.entity.Role;
 import com.example.user_management.entity.user.User;
 import com.example.user_management.repo.RoleRepo;
 import com.example.user_management.repo.UserRepo;
-import com.example.user_management.service.user.UserRoleService;
-import com.example.user_management.service.impl.UserRoleServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +60,7 @@ class UserRoleServiceTest {
     void shouldAssignRolesToUserSuccessfully() {
         Integer userId = 1;
 
-        AssignRoleRequest request = new AssignRoleRequest(Set.of(1, 2));
+        AssignOrRemoveRoleRequest request = new AssignOrRemoveRoleRequest(Set.of(1, 2));
 
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
         when(roleRepo.findAllById(request.roleIds()))
@@ -97,7 +94,7 @@ class UserRoleServiceTest {
     void shouldThrowExceptionWhenAssigningRolesAndSomeRolesNotFound() {
         Integer userId = 1;
 
-        AssignRoleRequest request = new AssignRoleRequest(Set.of(1, 2));
+        AssignOrRemoveRoleRequest request = new AssignOrRemoveRoleRequest(Set.of(1, 2));
 
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
         when(roleRepo.findAllById(request.roleIds()))
@@ -121,7 +118,7 @@ class UserRoleServiceTest {
 
         user.setRoles(new HashSet<>(Set.of(userRole)));
 
-        AssignRoleRequest request = new AssignRoleRequest(Set.of(1));
+        AssignOrRemoveRoleRequest request = new AssignOrRemoveRoleRequest(Set.of(1));
 
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
         when(roleRepo.findAllById(request.roleIds()))
@@ -152,7 +149,7 @@ class UserRoleServiceTest {
     void shouldThrowExceptionWhenAddingRolesAndSomeRolesNotFound() {
         Integer userId = 1;
 
-        AssignRoleRequest request = new AssignRoleRequest(Set.of(1, 2));
+        AssignOrRemoveRoleRequest request = new AssignOrRemoveRoleRequest(Set.of(1, 2));
 
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
         when(roleRepo.findAllById(request.roleIds()))

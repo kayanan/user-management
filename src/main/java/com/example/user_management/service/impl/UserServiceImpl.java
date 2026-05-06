@@ -1,20 +1,26 @@
 package com.example.user_management.service.impl;
 
 import com.example.user_management.dto.response.PermissionResponse;
-import com.example.user_management.dto.response.RoleResponseInsideUser;
+import com.example.user_management.dto.response.RoleResponse;
+import com.example.user_management.entity.Role;
+import com.example.user_management.exceptions.RoleNotFoundException;
 import com.example.user_management.exceptions.UserAlreadyExistsException;
 import com.example.user_management.entity.user.User;
 import com.example.user_management.dto.request.UpdateUserRequest;
 import com.example.user_management.dto.request.UserRegisterRequest;
 import com.example.user_management.dto.response.UserResponse;
 import com.example.user_management.exceptions.UserNotFoundException;
+import com.example.user_management.repo.RoleRepo;
 import com.example.user_management.repo.UserRepo;
-import com.example.user_management.service.user.UserService;
+import com.example.user_management.service.PermissionService;
+import com.example.user_management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +28,9 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
+    private final RoleRepo roleRepo;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    private final PermissionService permissionService;
 
     @Override
     public UserResponse saveUser(UserRegisterRequest userRegisterRequest) {
@@ -85,6 +93,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponse assignRoleToUser(
+            Integer userId,
+            Integer roleId
+    ) {
+        User user = findUserById(userId);
+        Role role = roleRepo.findById(
+                        roleId)
+                .orElseThrow(() -> new RoleNotFoundException("Role not found for roleId :" + roleId
+                ));
+        user.setRole(role);
+        User savedUser = userRepo.save(user);
+        return mapToResponse(savedUser);
+    }
+
+    @Override
+    public UserResponse removeRoleFromUser(
+            Integer userId,
+            Integer roleId
+    ) {
+        User user = findUserById(userId);
+        Role role = roleRepo.findById(
+                        roleId)
+                .orElseThrow(() -> new RoleNotFoundException("Role not found for roleId :" + roleId
+                ));
+        if (user.getRole().equals(role)) {
+            user.setRole(null);
+        } else {
+            throw new RuntimeException("User does not have role: " + role.getName());
+        }
+
+        User savedUser = userRepo.save(user);
+        return mapToResponse(savedUser);
+    }
+
+    @Override
     public UserResponse softDeleteUser(Integer id) {
         User user = findUserById(id);
         user.setDeleted(true);
@@ -106,24 +149,31 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserResponse mapToResponse(User user) {
+        List<PermissionResponse> permissions = permissionService.getAllPermissions();
+        Set<PermissionResponse> filteredPermissions = null;
+        Role role = user.getRole();
+
+        if (role != null && role.getPermissionIds().length > 0) {
+            filteredPermissions = permissions.stream().filter(
+                    permissionResponse ->
+                            Arrays.asList(role.getPermissionIds()).contains(permissionResponse.id())
+            ).collect(Collectors.toSet());
+
+        }
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRoles().stream().map(role -> new RoleResponseInsideUser(
-                        role.getId(),
-                        role.getName(),
-                        role.getDescription(),
-                        role.getPermissions().stream().map(permission -> new PermissionResponse(
-                                permission.getId(),
-                                permission.getName(),
-                                permission.getDescription(),
-                                permission.isActive(),
-                                permission.isDeleted()
-                        )).collect(Collectors.toSet()),
-                        role.isActive(),
-                        role.isDeleted()
-                )).collect(Collectors.toSet()),
+                role == null ? null :
+                        new RoleResponse(
+                                role.getId(),
+                                role.getName(),
+                                role.getDescription(),
+                                filteredPermissions,
+                                role.isActive(),
+                                role.isDeleted()
+                        )
+                ,
                 user.isActive(),
                 user.isDeleted()
         );

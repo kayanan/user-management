@@ -1,4 +1,4 @@
-package com.example.user_management.service.user;
+package com.example.user_management.service;
 
 import com.example.user_management.dto.request.UpdateUserRequest;
 import com.example.user_management.dto.request.UserRegisterRequest;
@@ -19,6 +19,10 @@ public interface UserService {
     UserResponse deactivateUser(Integer id);
 
     UserResponse activateUser(Integer id);
+
+    UserResponse assignRoleToUser(Integer id, Integer roleId);
+
+    UserResponse removeRoleFromUser(Integer id, Integer roleId);
 
     UserResponse softDeleteUser(Integer id);
 

@@ -1,0 +1,22 @@
+app:
+  permissions:
+    user:
+      - id: 3001
+        code: USER_CREATE
+        name: Create User
+
+      - id: 3002
+        code: USER_VIEW
+        name: View User
+
+      - id: 3003
+        code: USER_UPDATE
+        name: Update User
+
+      - id: 3004
+        code: USER_SOFT_DELETE
+        name: Soft Delete User
+
+      - id: 3005
+        code: USER_DELETE
+        name: Delete User
